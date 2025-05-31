@@ -1,12 +1,32 @@
-# React + Vite
+# Spots App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Spots is a modern, responsive web application built with React and Vite, designed to showcase a collection of items (e.g., locations, products, or posts) through dynamic cards. Each card features interactive elements like modals for detailed views and heart icons for favoriting items. This project was developed as part of the AltSchool Africa curriculum to demonstrate proficiency in front-end development.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Dynamic Cards**: Display items in a grid with images, titles, and descriptions.
+- **Modal Popups**: Click a card to view detailed information in a modal.
+- **Heart Icon Interaction**: Toggle a heart icon to mark items as favorites.
+- **Responsive Design**: Optimized for desktop and mobile devices.
+- **Fast Development**: Powered by Vite for quick builds and hot module replacement.
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Frontend**: React, JavaScript, HTML, CSS
+- **Build Tool**: Vite
+- **Linting**: ESLint for code quality
+- **Deployment**: Hosted on Vercel (or specify your chosen platform)
+
+## Prerequisites
+
+- Node.js (v16 or higher)
+- npm (v8 or higher)
+- Git
+
+## Installation
+
+1. Clone the repository:
+   ````bash
+   git clone https://github.com/Victorbjay/Spots-app.git
+   cd Spots-app```
+   ````
