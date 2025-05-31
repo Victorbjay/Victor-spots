@@ -191,6 +191,11 @@ header img {
   /* Red color for liked state */
 }
 
+.like-btn .liked span {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
 .footer {
   text-align: center;
   padding: 40px 0;
@@ -332,6 +337,26 @@ button:disabled {
   background-color: #21212166;
   color: #fcf5e5b2;
   cursor: not-allowed;
+}
+
+.primary-btn:disabled {
+  background-color: #21212166;
+  color: #fcf5e5b2;
+  cursor: not-allowed;
+}
+
+.primary-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 32px;
+  border-radius: 8px;
+  background-color: #212121;
+  color: #E6E6E6;
+  font-family: 'Poppins', sans-serif;
+  align-self: flex-end;
+  margin-left: auto;
 }
 
 /* Accessibility */

@@ -1,83 +1,141 @@
 // src/components/EditProfileModal.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-// ... (useState, useEffect, handleSubmit, etc. remain the same) ...
+// Utility validation function (can be moved to a separate utils.js file if you prefer)
+function validateInput(value, minLength, maxLength, fieldName) {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) {
+    return `${fieldName} is required.`;
+  }
+  if (trimmedValue.length < minLength) {
+    return `Minimum ${minLength} characters required for ${fieldName.toLowerCase()}.`;
+  }
+  if (trimmedValue.length > maxLength) {
+    return `Maximum ${maxLength} characters allowed for ${fieldName.toLowerCase()}.`;
+  }
+  return ""; // No error
+}
 
-function EditProfileModal({ isOpen, onClose, onSave, initialData = {} }) {
+function EditProfileModal({ isOpen, onClose, onSave, initialData }) {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [pictureFile, setPictureFile] = useState(null);
-  const [error, setError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [bioError, setBioError] = useState("");
   const [isFormValid, setIsFormValid] = useState(false);
+
+  // --- REF FOR AUTOFOCUS ---
+  const nameInputRef = useRef(null); // Create a ref for the name input
+  // --- END REF FOR AUTOFOCUS ---
+
+  const modalContentRef = useRef(null); // For click outside logic
 
   useEffect(() => {
     if (isOpen) {
-      // Only populate/reset when actually opening
       setName(initialData.name || "");
       setBio(initialData.bio || "");
       setPictureFile(null);
-      setError("");
+      setNameError("");
+      setBioError("");
+      // --- AUTOFOCUS LOGIC ---
+      // Focus the name input when modal opens
+      // Timeout helps ensure the element is fully rendered and visible
+      // before trying to focus, especially with CSS transitions.
+      const timer = setTimeout(() => {
+        if (nameInputRef.current) {
+          nameInputRef.current.focus();
+        }
+      }, 0); // A 0ms timeout pushes it to the end of the current execution queue
+      return () => clearTimeout(timer); // Cleanup the timer
+      // --- END AUTOFOCUS LOGIC ---
     }
-  }, [initialData, isOpen]);
+  }, [isOpen, initialData]); // Rerun when isOpen or initialData changes
 
   useEffect(() => {
-    const nameValid = name.length >= 2 && name.length <= 50;
-    const bioValid = bio.length >= 10 && bio.length <= 150;
-    setIsFormValid(nameValid && bioValid);
-  }, [name, bio]);
+    // Validate on name or bio change
+    const currentNameError = validateInput(name, 2, 50, "Name");
+    const currentBioError = validateInput(bio, 10, 150, "Bio");
 
-  // No need for: if (!isOpen) return null; if we use the class toggle method
-  // The component will always be in the DOM, but hidden by CSS.
-  // However, for complex modals, conditional rendering (return null) can be better for performance.
-  // For now, class toggle is fine.
+    setNameError(currentNameError);
+    setBioError(currentBioError);
+    setIsFormValid(!currentNameError && !currentBioError);
+  }, [name, bio]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!isFormValid) {
-      setError("Please correct the form errors.");
-      return;
-    }
-    setError("");
+    if (!isFormValid) return;
     onSave({ name, bio, pictureFile });
   };
 
   const handlePictureChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setPictureFile(e.target.files[0]);
+    } else {
+      setPictureFile(null);
     }
   };
 
+  // Click outside to close
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (event) => {
+      if (
+        modalContentRef.current &&
+        !modalContentRef.current.contains(event.target) &&
+        event.target.classList.contains("modal")
+      ) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   return (
     <div
-      // className={`modal ${isOpen ? 'open' : ''}`} // <--- DYNAMIC CLASS
-      className={isOpen ? "modal open" : "modal"} // Or this for clarity
+      className={isOpen ? "modal open" : "modal"}
       role="dialog"
       aria-labelledby="editProfileTitle"
+      aria-modal="true"
       aria-hidden={!isOpen}
     >
-      <div className="modal-content">
-        {/* ... rest of the modal content ... */}
+      <div className="modal-content" ref={modalContentRef}>
         <h2 id="editProfileTitle">Edit Profile</h2>
-        <form id="editProfileForm" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <label htmlFor="profileNameInput">Name (2-50 characters):</label>
           <input
+            // --- ATTACH THE REF ---
+            ref={nameInputRef}
+            // --- END ATTACH THE REF ---
             type="text"
-            id="profileNameInput" // IDs can be kept, but ensure they are unique if multiple instances could exist
+            id="profileNameInput"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            required
-            minLength="2"
-            maxLength="50"
+            aria-describedby={nameError ? "profileNameError" : undefined}
+            aria-invalid={!!nameError}
           />
+          {nameError && (
+            <div className="error" id="profileNameError">
+              {nameError}
+            </div>
+          )}
+
           <label htmlFor="profileBioInput">Bio (10-150 characters):</label>
           <textarea
             id="profileBioInput"
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            required
-            minLength="10"
-            maxLength="150"
+            aria-describedby={bioError ? "profileBioError" : undefined}
+            aria-invalid={!!bioError}
           ></textarea>
+          {bioError && (
+            <div className="error" id="profileBioError">
+              {bioError}
+            </div>
+          )}
+
           <label htmlFor="profilePictureInput">Profile Picture:</label>
           <input
             type="file"
@@ -85,15 +143,11 @@ function EditProfileModal({ isOpen, onClose, onSave, initialData = {} }) {
             accept="image/*"
             onChange={handlePictureChange}
           />
-          {error && (
-            <div className="error" id="profileError">
-              {error}
-            </div>
-          )}
+
           <div className="modal-buttons">
             <button
               type="submit"
-              className="primary-btn new-post-btn"
+              className="primary-btn"
               disabled={!isFormValid}
             >
               Save
